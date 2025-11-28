@@ -394,13 +394,6 @@ See [database/README.md](database/README.md) for detailed schema documentation.
 
 ## Development
 
-### Code Style
-
-The project follows:
-- **DRY**: No code duplication, shared utilities
-- **SOLID**: Single responsibility, clear interfaces
-- **KISS**: Simple, readable code over clever solutions
-
 ### Key Design Patterns
 
 - **Base Class Pattern**: `BaseScraper` for common scraping functionality
