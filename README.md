@@ -1,6 +1,6 @@
 # Retail Price Intelligence System
 
-A comprehensive system for scraping, tracking, and analyzing product prices across multiple e-commerce websites. Built with Python, PostgreSQL, and FastAPI following DRY and SOLID principles.
+A comprehensive system for scraping, tracking, and analyzing product prices across multiple e-commerce websites. Built with Python, PostgreSQL.
 
 ## Overview
 
