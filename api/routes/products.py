@@ -7,20 +7,12 @@ from uuid import UUID
 from sqlalchemy.orm import Session
 from sqlalchemy import or_, func
 
-from models import SessionLocal, Product, ProductSource, Price
+from models.db_models import Product, ProductSource, Price
 from models.schemas import Product as ProductSchema, ProductCreate
 from models.utils import find_or_create_product
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/", response_model=List[ProductSchema])

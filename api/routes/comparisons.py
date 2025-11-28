@@ -8,18 +8,10 @@ from datetime import date
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from models import SessionLocal, PriceComparison, Product
+from models.db_models import PriceComparison, Product
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/")

@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 
 from utils.http_client import HTTPClient
 from utils.rate_limiter import RateLimiter
-from models import SessionLocal, Source, ScrapingLog
+from models import SessionLocal
+from models.db_models import Source, ScrapingLog
 from models.utils import (
     find_or_create_product,
     get_or_create_product_source,

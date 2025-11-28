@@ -7,8 +7,9 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 
-from models import (
-    SessionLocal, ProductSource, Price, Product,
+from models import SessionLocal
+from models.db_models import (
+    ProductSource, Price, Product,
     DiscountAnalysis, PriceComparison, PriceAlert
 )
 from models.utils import calculate_price_metrics

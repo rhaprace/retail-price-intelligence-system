@@ -7,18 +7,10 @@ from datetime import date
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from models import SessionLocal, DiscountAnalysis, ProductSource
+from models.db_models import DiscountAnalysis, ProductSource
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/discounts")

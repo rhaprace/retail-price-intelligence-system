@@ -5,19 +5,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
 
-from models import SessionLocal, Source
+from models.db_models import Source
 from models.schemas import Source as SourceSchema, SourceCreate
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/", response_model=List[SourceSchema])

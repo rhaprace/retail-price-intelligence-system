@@ -7,20 +7,12 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 from sqlalchemy import desc
 
-from models import SessionLocal, Price, ProductSource
+from models.db_models import Price, ProductSource
 from models.schemas import Price as PriceSchema
 from models.utils import get_latest_price, get_price_history
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/latest", response_model=List[PriceSchema])

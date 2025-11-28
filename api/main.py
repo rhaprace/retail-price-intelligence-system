@@ -5,6 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routes import products, prices, sources, comparisons, alerts, analytics
+from .dependencies import test_db_connection
 
 app = FastAPI(
     title="Retail Price Intelligence API",
@@ -42,4 +43,10 @@ def root():
 def health():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+@app.get("/api/health/db")
+def health_db():
+    """Database health check endpoint."""
+    return test_db_connection()
 

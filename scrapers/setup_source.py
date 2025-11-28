@@ -1,7 +1,8 @@
 """
 Helper script to add sources to database.
 """
-from models import SessionLocal, Source
+from models import SessionLocal
+from models.db_models import Source
 
 
 def add_source(name: str, base_url: str, country_code: str = None, 

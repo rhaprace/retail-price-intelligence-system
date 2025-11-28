@@ -7,6 +7,9 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 import os
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 Base = declarative_base()
 

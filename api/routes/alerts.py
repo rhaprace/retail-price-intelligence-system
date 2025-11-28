@@ -6,19 +6,11 @@ from typing import List, Optional
 from uuid import UUID
 from sqlalchemy.orm import Session
 
-from models import SessionLocal, PriceAlert, Product
+from models.db_models import PriceAlert, Product
 from models.schemas import PriceAlert as PriceAlertSchema, PriceAlertCreate
+from ..dependencies import get_db
 
 router = APIRouter()
-
-
-def get_db():
-    """Get database session."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @router.get("/", response_model=List[PriceAlertSchema])
