@@ -179,9 +179,17 @@ retail-price-intelligence-system/
 
 ### Step 1: Install Dependencies
 
+**Option A: Using pip (recommended for development)**
 ```bash
 pip install -r requirements.txt
 ```
+
+**Option B: Using setup.py (for package installation)**
+```bash
+pip install -e .
+```
+
+This installs the package in editable mode, making it available as a Python package.
 
 ### Step 2: Setup Database
 
@@ -402,4 +410,17 @@ The project follows:
 
 ## License
 
-[Your License Here]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## CI/CD
+
+The project includes a minimal CI/CD pipeline using GitHub Actions:
+
+- **Lint Check**: Runs flake8 to check code quality and style
+- **Deployment Check**: Verifies module imports and configuration on main branch
+
+The pipeline runs on:
+- Push to `main` or `develop` branches
+- Pull requests to `main` or `develop` branches
+
+See `.github/workflows/ci-cd.yml` for configuration details.

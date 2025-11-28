@@ -20,7 +20,6 @@ uvicorn>=0.24.0
 # Utilities
 python-dotenv>=1.0.0
 
-# Testing (to be added)
-# pytest>=7.4.0
-# pytest-asyncio>=0.21.0
+# Linting
+flake8>=6.1.0
 
