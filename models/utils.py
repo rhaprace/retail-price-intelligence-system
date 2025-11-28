@@ -2,7 +2,7 @@
 Utility functions for database operations.
 """
 from typing import Optional, List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
@@ -100,7 +100,7 @@ def get_or_create_product_source(
         product_source.source_product_url = source_product_url
         if source_product_name:
             product_source.source_product_name = source_product_name
-        product_source.last_seen_at = datetime.utcnow()
+        product_source.last_seen_at = datetime.now(timezone.utc)
         product_source.is_active = True
         db.commit()
         db.refresh(product_source)
@@ -112,7 +112,7 @@ def get_or_create_product_source(
         source_product_id=source_product_id,
         source_product_url=source_product_url,
         source_product_name=source_product_name,
-        last_seen_at=datetime.utcnow()
+        last_seen_at=datetime.now(timezone.utc)
     )
     db.add(product_source)
     db.commit()
@@ -159,7 +159,7 @@ def insert_price(
         stock_quantity=stock_quantity,
         shipping_cost=shipping_cost,
         raw_data=raw_data,
-        scraped_at=scraped_at or datetime.utcnow()
+        scraped_at=scraped_at or datetime.now(timezone.utc)
     )
     db.add(price_record)
     db.commit()
@@ -201,7 +201,7 @@ def get_price_history(
     Returns:
         List of Price instances
     """
-    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
     query = db.query(Price).filter(
         and_(
             Price.product_source_id == product_source_id,
@@ -231,7 +231,7 @@ def calculate_price_metrics(
     Returns:
         Dictionary with min_price, max_price, avg_price
     """
-    cutoff_date = datetime.utcnow() - timedelta(days=days)
+    cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
     
     result = db.query(
         func.min(Price.price).label('min_price'),
