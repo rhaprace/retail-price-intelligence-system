@@ -1,38 +1,24 @@
 """
 Pydantic schemas for data validation and serialization.
 """
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any
 from datetime import datetime, date
 from uuid import UUID
 from decimal import Decimal
 
-class SourceBase(BaseModel):
-    """Base source schema."""
+
+class SourceCreate(BaseModel):
+    """Schema for creating a source."""
     name: str = Field(..., max_length=100)
     base_url: str = Field(..., max_length=500)
-    country_code: Optional[str] = Field(None, max_length=2)
-    currency_code: str = Field('USD', max_length=3)
+    country_code: Optional[str] = None
+    currency_code: str = 'USD'
     is_active: bool = True
-    rate_limit_per_minute: int = Field(60, ge=1)
+    rate_limit_per_minute: int = 60
 
 
-class SourceCreate(SourceBase):
-    """Schema for creating a source."""
-    pass
-
-
-class SourceUpdate(BaseModel):
-    """Schema for updating a source."""
-    name: Optional[str] = Field(None, max_length=100)
-    base_url: Optional[str] = Field(None, max_length=500)
-    country_code: Optional[str] = Field(None, max_length=2)
-    currency_code: Optional[str] = Field(None, max_length=3)
-    is_active: Optional[bool] = None
-    rate_limit_per_minute: Optional[int] = Field(None, ge=1)
-
-
-class Source(SourceBase):
+class Source(SourceCreate):
     """Schema for source response."""
     id: int
     last_scraped_at: Optional[datetime] = None
@@ -42,38 +28,20 @@ class Source(SourceBase):
     class Config:
         from_attributes = True
 
-class ProductBase(BaseModel):
-    """Base product schema."""
-    name: str = Field(..., max_length=500)
-    description: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=100)
-    brand: Optional[str] = Field(None, max_length=100)
-    sku: Optional[str] = Field(None, max_length=100)
-    upc: Optional[str] = Field(None, max_length=50)
-    ean: Optional[str] = Field(None, max_length=50)
-    image_url: Optional[str] = Field(None, max_length=1000)
-    normalized_name: Optional[str] = Field(None, max_length=500)
-
-
-class ProductCreate(ProductBase):
+class ProductCreate(BaseModel):
     """Schema for creating a product."""
-    pass
-
-
-class ProductUpdate(BaseModel):
-    """Schema for updating a product."""
-    name: Optional[str] = Field(None, max_length=500)
+    name: str
     description: Optional[str] = None
-    category: Optional[str] = Field(None, max_length=100)
-    brand: Optional[str] = Field(None, max_length=100)
-    sku: Optional[str] = Field(None, max_length=100)
-    upc: Optional[str] = Field(None, max_length=50)
-    ean: Optional[str] = Field(None, max_length=50)
-    image_url: Optional[str] = Field(None, max_length=1000)
-    normalized_name: Optional[str] = Field(None, max_length=500)
+    category: Optional[str] = None
+    brand: Optional[str] = None
+    sku: Optional[str] = None
+    upc: Optional[str] = None
+    ean: Optional[str] = None
+    image_url: Optional[str] = None
+    normalized_name: Optional[str] = None
 
 
-class Product(ProductBase):
+class Product(ProductCreate):
     """Schema for product response."""
     id: UUID
     created_at: datetime
@@ -82,30 +50,17 @@ class Product(ProductBase):
     class Config:
         from_attributes = True
 
-class ProductSourceBase(BaseModel):
-    """Base product source schema."""
+class ProductSourceCreate(BaseModel):
+    """Schema for creating a product source."""
     product_id: UUID
     source_id: int
-    source_product_id: str = Field(..., max_length=200)
-    source_product_url: str = Field(..., max_length=1000)
-    source_product_name: Optional[str] = Field(None, max_length=500)
+    source_product_id: str
+    source_product_url: str
+    source_product_name: Optional[str] = None
     is_active: bool = True
 
 
-class ProductSourceCreate(ProductSourceBase):
-    """Schema for creating a product source."""
-    pass
-
-
-class ProductSourceUpdate(BaseModel):
-    """Schema for updating a product source."""
-    source_product_url: Optional[str] = Field(None, max_length=1000)
-    source_product_name: Optional[str] = Field(None, max_length=500)
-    is_active: Optional[bool] = None
-    last_seen_at: Optional[datetime] = None
-
-
-class ProductSource(ProductSourceBase):
+class ProductSource(ProductSourceCreate):
     """Schema for product source response."""
     id: int
     last_seen_at: Optional[datetime] = None
@@ -115,24 +70,20 @@ class ProductSource(ProductSourceBase):
     class Config:
         from_attributes = True
 
-class PriceBase(BaseModel):
-    """Base price schema."""
+class PriceCreate(BaseModel):
+    """Schema for creating a price."""
     product_source_id: int
     price: Decimal = Field(..., gt=0)
-    currency_code: str = Field('USD', max_length=3)
+    currency_code: str = 'USD'
     original_price: Optional[Decimal] = None
     is_in_stock: bool = True
     stock_quantity: Optional[int] = None
-    shipping_cost: Decimal = Field(0, ge=0)
+    shipping_cost: Decimal = 0
     raw_data: Optional[Dict[str, Any]] = None
-
-
-class PriceCreate(PriceBase):
-    """Schema for creating a price."""
     scraped_at: Optional[datetime] = None
 
 
-class Price(PriceBase):
+class Price(PriceCreate):
     """Schema for price response."""
     id: int
     discount_percentage: Optional[Decimal] = None
@@ -142,28 +93,16 @@ class Price(PriceBase):
     class Config:
         from_attributes = True
 
-class PriceAlertBase(BaseModel):
-    """Base price alert schema."""
+class PriceAlertCreate(BaseModel):
+    """Schema for creating a price alert."""
     product_id: UUID
-    user_email: Optional[str] = Field(None, max_length=255)
+    user_email: Optional[str] = None
     target_price: Optional[Decimal] = None
-    price_drop_percentage: Optional[Decimal] = Field(None, ge=0, le=100)
+    price_drop_percentage: Optional[Decimal] = None
     is_active: bool = True
 
 
-class PriceAlertCreate(PriceAlertBase):
-    """Schema for creating a price alert."""
-    pass
-
-
-class PriceAlertUpdate(BaseModel):
-    """Schema for updating a price alert."""
-    target_price: Optional[Decimal] = None
-    price_drop_percentage: Optional[Decimal] = Field(None, ge=0, le=100)
-    is_active: Optional[bool] = None
-
-
-class PriceAlert(PriceAlertBase):
+class PriceAlert(PriceAlertCreate):
     """Schema for price alert response."""
     id: int
     last_triggered_at: Optional[datetime] = None
@@ -174,8 +113,8 @@ class PriceAlert(PriceAlertBase):
     class Config:
         from_attributes = True
 
-class DiscountAnalysisBase(BaseModel):
-    """Base discount analysis schema."""
+class DiscountAnalysisCreate(BaseModel):
+    """Schema for creating discount analysis."""
     product_source_id: int
     analysis_date: date
     min_price_30d: Optional[Decimal] = None
@@ -192,15 +131,10 @@ class DiscountAnalysisBase(BaseModel):
     actual_discount_percentage: Optional[Decimal] = None
     is_fake_discount: bool = False
     fake_discount_reason: Optional[str] = None
-    price_trend: Optional[str] = Field(None, max_length=20)
+    price_trend: Optional[str] = None
 
 
-class DiscountAnalysisCreate(DiscountAnalysisBase):
-    """Schema for creating discount analysis."""
-    pass
-
-
-class DiscountAnalysis(DiscountAnalysisBase):
+class DiscountAnalysis(DiscountAnalysisCreate):
     """Schema for discount analysis response."""
     id: int
     created_at: datetime
@@ -208,8 +142,8 @@ class DiscountAnalysis(DiscountAnalysisBase):
     class Config:
         from_attributes = True
 
-class PriceComparisonBase(BaseModel):
-    """Base price comparison schema."""
+class PriceComparisonCreate(BaseModel):
+    """Schema for creating price comparison."""
     product_id: UUID
     comparison_date: date
     best_price: Optional[Decimal] = None
@@ -221,12 +155,7 @@ class PriceComparisonBase(BaseModel):
     source_count: Optional[int] = None
 
 
-class PriceComparisonCreate(PriceComparisonBase):
-    """Schema for creating price comparison."""
-    pass
-
-
-class PriceComparison(PriceComparisonBase):
+class PriceComparison(PriceComparisonCreate):
     """Schema for price comparison response."""
     id: int
     created_at: datetime
@@ -234,11 +163,11 @@ class PriceComparison(PriceComparisonBase):
     class Config:
         from_attributes = True
 
-class ScrapingLogBase(BaseModel):
-    """Base scraping log schema."""
+class ScrapingLogCreate(BaseModel):
+    """Schema for creating scraping log."""
     source_id: Optional[int] = None
     product_source_id: Optional[int] = None
-    status: str = Field(..., max_length=20)
+    status: str
     error_message: Optional[str] = None
     response_time_ms: Optional[int] = None
     http_status_code: Optional[int] = None
@@ -247,12 +176,7 @@ class ScrapingLogBase(BaseModel):
     completed_at: Optional[datetime] = None
 
 
-class ScrapingLogCreate(ScrapingLogBase):
-    """Schema for creating scraping log."""
-    pass
-
-
-class ScrapingLog(ScrapingLogBase):
+class ScrapingLog(ScrapingLogCreate):
     """Schema for scraping log response."""
     id: int
     created_at: datetime

@@ -11,7 +11,6 @@ from .db_models import (
     Product, ProductSource, Price, Source,
     DiscountAnalysis, PriceComparison, PriceAlert
 )
-from .schemas import ProductCreate, PriceCreate
 
 
 def normalize_product_name(name: str) -> str:
@@ -39,35 +38,12 @@ def find_or_create_product(
     ean: Optional[str] = None,
     **kwargs
 ) -> Product:
-    """
-    Find existing product or create new one.
-    Uses SKU, UPC, or EAN for exact matching, falls back to name matching.
-    
-    Args:
-        db: Database session
-        name: Product name
-        sku: Stock Keeping Unit
-        upc: Universal Product Code
-        ean: European Article Number
-        **kwargs: Additional product fields
-    
-    Returns:
-        Product instance
-    """
-    if sku:
-        product = db.query(Product).filter(Product.sku == sku).first()
-        if product:
-            return product
-    
-    if upc:
-        product = db.query(Product).filter(Product.upc == upc).first()
-        if product:
-            return product
-    
-    if ean:
-        product = db.query(Product).filter(Product.ean == ean).first()
-        if product:
-            return product
+    """Find existing product or create new one."""
+    for field, value in [('sku', sku), ('upc', upc), ('ean', ean)]:
+        if value:
+            product = db.query(Product).filter(getattr(Product, field) == value).first()
+            if product:
+                return product
     
     normalized = normalize_product_name(name)
     product = db.query(Product).filter(
