@@ -1,7 +1,4 @@
-"""
-Pydantic schemas for data validation and serialization.
-"""
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, Dict, Any
 from datetime import datetime, date
 from uuid import UUID
@@ -9,7 +6,6 @@ from decimal import Decimal
 
 
 class SourceCreate(BaseModel):
-    """Schema for creating a source."""
     name: str = Field(..., max_length=100)
     base_url: str = Field(..., max_length=500)
     country_code: Optional[str] = None
@@ -19,17 +15,15 @@ class SourceCreate(BaseModel):
 
 
 class Source(SourceCreate):
-    """Schema for source response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     last_scraped_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class ProductCreate(BaseModel):
-    """Schema for creating a product."""
     name: str
     description: Optional[str] = None
     category: Optional[str] = None
@@ -42,16 +36,14 @@ class ProductCreate(BaseModel):
 
 
 class Product(ProductCreate):
-    """Schema for product response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: UUID
     created_at: datetime
     updated_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class ProductSourceCreate(BaseModel):
-    """Schema for creating a product source."""
     product_id: UUID
     source_id: int
     source_product_id: str
@@ -61,17 +53,15 @@ class ProductSourceCreate(BaseModel):
 
 
 class ProductSource(ProductSourceCreate):
-    """Schema for product source response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     last_seen_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class PriceCreate(BaseModel):
-    """Schema for creating a price."""
     product_source_id: int
     price: Decimal = Field(..., gt=0)
     currency_code: str = 'USD'
@@ -84,17 +74,15 @@ class PriceCreate(BaseModel):
 
 
 class Price(PriceCreate):
-    """Schema for price response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     discount_percentage: Optional[Decimal] = None
     scraped_at: datetime
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class PriceAlertCreate(BaseModel):
-    """Schema for creating a price alert."""
     product_id: UUID
     user_email: Optional[str] = None
     target_price: Optional[Decimal] = None
@@ -103,18 +91,16 @@ class PriceAlertCreate(BaseModel):
 
 
 class PriceAlert(PriceAlertCreate):
-    """Schema for price alert response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     last_triggered_at: Optional[datetime] = None
     trigger_count: int = 0
     created_at: datetime
     updated_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class DiscountAnalysisCreate(BaseModel):
-    """Schema for creating discount analysis."""
     product_source_id: int
     analysis_date: date
     min_price_30d: Optional[Decimal] = None
@@ -135,15 +121,13 @@ class DiscountAnalysisCreate(BaseModel):
 
 
 class DiscountAnalysis(DiscountAnalysisCreate):
-    """Schema for discount analysis response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class PriceComparisonCreate(BaseModel):
-    """Schema for creating price comparison."""
     product_id: UUID
     comparison_date: date
     best_price: Optional[Decimal] = None
@@ -156,15 +140,13 @@ class PriceComparisonCreate(BaseModel):
 
 
 class PriceComparison(PriceComparisonCreate):
-    """Schema for price comparison response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class ScrapingLogCreate(BaseModel):
-    """Schema for creating scraping log."""
     source_id: Optional[int] = None
     product_source_id: Optional[int] = None
     status: str
@@ -177,15 +159,15 @@ class ScrapingLogCreate(BaseModel):
 
 
 class ScrapingLog(ScrapingLogCreate):
-    """Schema for scraping log response."""
+    model_config = ConfigDict(from_attributes=True)
+    
     id: int
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
+
 
 class LatestPrice(BaseModel):
-    """Schema for latest price view."""
+    model_config = ConfigDict(from_attributes=True)
+    
     product_id: UUID
     product_name: str
     source_name: str
@@ -198,13 +180,11 @@ class LatestPrice(BaseModel):
     is_in_stock: bool
     scraped_at: datetime
     created_at: datetime
-    
-    class Config:
-        from_attributes = True
 
 
 class PriceComparisonView(BaseModel):
-    """Schema for price comparison view."""
+    model_config = ConfigDict(from_attributes=True)
+    
     product_id: UUID
     product_name: str
     source_count: int
@@ -213,7 +193,4 @@ class PriceComparisonView(BaseModel):
     avg_price: Optional[Decimal] = None
     price_stddev: Optional[Decimal] = None
     last_updated: Optional[datetime] = None
-    
-    class Config:
-        from_attributes = True
 

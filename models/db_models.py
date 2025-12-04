@@ -1,21 +1,28 @@
-"""
-SQLAlchemy ORM models for Retail Price Intelligence System.
-"""
 from sqlalchemy import (
     Column, Integer, String, Boolean, Numeric, Text, 
     DateTime, ForeignKey, UniqueConstraint, CheckConstraint, JSON
 )
-from sqlalchemy.dialects.postgresql import UUID, JSONB
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from datetime import datetime
 import uuid
 
 from .base import Base
 
 
+class CrossDatabaseJSON(TypeDecorator):
+    impl = JSON
+    cache_ok = True
+    
+    def load_dialect_impl(self, dialect):
+        if dialect.name == 'postgresql':
+            from sqlalchemy.dialects.postgresql import JSONB
+            return dialect.type_descriptor(JSONB())
+        return dialect.type_descriptor(JSON())
+
+
 class Source(Base):
-    """E-commerce website source."""
     __tablename__ = 'sources'
     
     id = Column(Integer, primary_key=True)
@@ -33,11 +40,10 @@ class Source(Base):
     scraping_logs = relationship('ScrapingLog', back_populates='source')
     
     def __repr__(self):
-        return f"<Source(id={self.id}, name='{self.name}')>"
+        return f"Source(id={self.id}, name={self.name})"
 
 
 class Product(Base):
-    """Core product catalog."""
     __tablename__ = 'products'
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -62,7 +68,6 @@ class Product(Base):
 
 
 class ProductSource(Base):
-    """Links products to sources with source-specific identifiers."""
     __tablename__ = 'product_sources'
     __table_args__ = (
         UniqueConstraint('source_id', 'source_product_id', name='uq_source_product'),
@@ -90,7 +95,6 @@ class ProductSource(Base):
 
 
 class Price(Base):
-    """Time-series price data."""
     __tablename__ = 'prices'
     __table_args__ = (
         CheckConstraint('price > 0', name='check_price_positive'),
@@ -106,17 +110,16 @@ class Price(Base):
     stock_quantity = Column(Integer)
     shipping_cost = Column(Numeric(10, 2), default=0)
     scraped_at = Column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    raw_data = Column(JSONB)
+    raw_data = Column(CrossDatabaseJSON)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     product_source = relationship('ProductSource', back_populates='prices')
     
     def __repr__(self):
-        return f"<Price(id={self.id}, price={self.price}, scraped_at={self.scraped_at})>"
+        return f"Price(id={self.id}, price={self.price})"
 
 
 class PriceAlert(Base):
-    """Price drop alerts and notifications."""
     __tablename__ = 'price_alerts'
     
     id = Column(Integer, primary_key=True)
@@ -137,7 +140,6 @@ class PriceAlert(Base):
 
 
 class DiscountAnalysis(Base):
-    """Fake discount detection and analysis."""
     __tablename__ = 'discount_analysis'
     __table_args__ = (
         UniqueConstraint('product_source_id', 'analysis_date', name='uq_discount_analysis'),
@@ -170,7 +172,6 @@ class DiscountAnalysis(Base):
 
 
 class PriceComparison(Base):
-    """Cross-source price comparisons."""
     __tablename__ = 'price_comparisons'
     __table_args__ = (
         UniqueConstraint('product_id', 'comparison_date', name='uq_price_comparison'),
@@ -197,7 +198,6 @@ class PriceComparison(Base):
 
 
 class ScrapingLog(Base):
-    """Scraping activity logs."""
     __tablename__ = 'scraping_logs'
     
     id = Column(Integer, primary_key=True, autoincrement=True)

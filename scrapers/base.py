@@ -1,6 +1,3 @@
-"""
-Base scraper class for all e-commerce scrapers.
-"""
 from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 from datetime import datetime, timezone
@@ -19,8 +16,6 @@ from models.utils import (
 
 
 class BaseScraper(ABC):
-    """Base class for all scrapers."""
-    
     def __init__(self, source_name: str, db: Optional[Session] = None):
         self.source_name = source_name
         self.db = db or SessionLocal()
@@ -30,31 +25,19 @@ class BaseScraper(ABC):
         self._setup_rate_limiter()
     
     def _get_source(self) -> Source:
-        """Get source from database."""
         source = self.db.query(Source).filter(Source.name == self.source_name).first()
         if not source:
             raise ValueError(f"Source '{self.source_name}' not found in database")
         return source
     
     def _setup_rate_limiter(self):
-        """Setup rate limiter based on source settings."""
         self.rate_limiter = RateLimiter(self.source.rate_limit_per_minute)
     
     @abstractmethod
     def scrape_product(self, product_url: str) -> Optional[Dict[str, Any]]:
-        """
-        Scrape a single product page.
-        
-        Args:
-            product_url: URL of the product page
-        
-        Returns:
-            Dictionary with product data or None if failed
-        """
         pass
     
     def _extract_price(self, text: str) -> Optional[Decimal]:
-        """Extract price from text."""
         if not text:
             return None
         
@@ -70,15 +53,6 @@ class BaseScraper(ABC):
         return None
     
     def save_product_data(self, product_data: Dict[str, Any]) -> bool:
-        """
-        Save scraped product data to database.
-        
-        Args:
-            product_data: Dictionary with product information
-        
-        Returns:
-            True if successful, False otherwise
-        """
         try:
             product = find_or_create_product(
                 db=self.db,
@@ -121,7 +95,6 @@ class BaseScraper(ABC):
                      response_time_ms: Optional[int] = None, 
                      http_status_code: Optional[int] = None,
                      scraped_count: int = 0):
-        """Log scraping activity."""
         log = ScrapingLog(
             source_id=self.source.id,
             status=status,
@@ -136,15 +109,6 @@ class BaseScraper(ABC):
         self.db.commit()
     
     def scrape(self, product_urls: list) -> Dict[str, Any]:
-        """
-        Scrape multiple products.
-        
-        Args:
-            product_urls: List of product URLs to scrape
-        
-        Returns:
-            Dictionary with scraping results
-        """
         results = {
             'success': 0,
             'failed': 0,
@@ -185,7 +149,6 @@ class BaseScraper(ABC):
         return results
     
     def close(self):
-        """Clean up resources."""
         self.http_client.close()
         if self.db:
             self.db.close()

@@ -1,6 +1,3 @@
-"""
-Pipeline package for Retail Price Intelligence System.
-"""
 from .orchestrator import PipelineOrchestrator
 from .tasks import (
     Task,
@@ -8,12 +5,15 @@ from .tasks import (
     PriceComparisonTask,
     PriceAlertTask
 )
+from .scheduler import TaskScheduler, create_default_scheduler
 
 __all__ = [
     'PipelineOrchestrator',
     'Task',
     'DiscountAnalysisTask',
     'PriceComparisonTask',
-    'PriceAlertTask'
+    'PriceAlertTask',
+    'TaskScheduler',
+    'create_default_scheduler'
 ]
 

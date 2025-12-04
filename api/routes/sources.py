@@ -1,6 +1,3 @@
-"""
-Source routes.
-"""
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from sqlalchemy.orm import Session
@@ -12,29 +9,42 @@ from ..dependencies import get_db
 router = APIRouter()
 
 
+class SourceNotFoundError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=404, detail="Source not found")
+
+
+class SourceAlreadyExistsError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=400, detail="Source with this name already exists")
+
+
+def get_source_or_404(source_id: int, db: Session) -> Source:
+    source = db.query(Source).filter(Source.id == source_id).first()
+    if not source:
+        raise SourceNotFoundError()
+    return source
+
+
+def ensure_source_name_unique(name: str, db: Session):
+    existing = db.query(Source).filter(Source.name == name).first()
+    if existing:
+        raise SourceAlreadyExistsError()
+
+
 @router.get("/", response_model=List[SourceSchema])
-def get_sources(db: Session = Depends(get_db)):
-    """Get all sources."""
-    sources = db.query(Source).all()
-    return sources
+def list_sources(db: Session = Depends(get_db)):
+    return db.query(Source).all()
 
 
 @router.get("/{source_id}", response_model=SourceSchema)
 def get_source(source_id: int, db: Session = Depends(get_db)):
-    """Get source by ID."""
-    source = db.query(Source).filter(Source.id == source_id).first()
-    if not source:
-        raise HTTPException(status_code=404, detail="Source not found")
-    return source
+    return get_source_or_404(source_id, db)
 
 
 @router.post("/", response_model=SourceSchema)
 def create_source(source: SourceCreate, db: Session = Depends(get_db)):
-    """Create a new source."""
-    # Check if source already exists
-    existing = db.query(Source).filter(Source.name == source.name).first()
-    if existing:
-        raise HTTPException(status_code=400, detail="Source with this name already exists")
+    ensure_source_name_unique(source.name, db)
     
     db_source = Source(**source.dict())
     db.add(db_source)
