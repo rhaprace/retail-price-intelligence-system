@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Search, Filter, Package } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import { productsApi, type Product } from '../lib/api'
 import { PageHeader, LoadingSpinner, EmptyState, ErrorMessage, Badge } from '../components/ui'
@@ -53,21 +52,19 @@ function SearchFilters({ search, category, categories, onSearchChange, onCategor
   return (
     <div className="flex flex-col sm:flex-row gap-4">
       <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <input
           type="text"
           placeholder="Search products..."
           value={search}
           onChange={e => onSearchChange(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
         />
       </div>
       <div className="relative">
-        <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
         <select
           value={category}
           onChange={e => onCategoryChange(e.target.value)}
-          className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none bg-white"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none bg-white"
         >
           <option value="">All Categories</option>
           {categories.map(cat => (
@@ -90,7 +87,7 @@ interface ProductGridProps {
 function ProductGrid({ products, isLoading, error }: ProductGridProps) {
   if (isLoading) return <LoadingSpinner />
   if (error) return <ErrorMessage message="Error loading products" />
-  if (!products?.length) return <EmptyState icon={Package} message="No products found" />
+  if (!products?.length) return <EmptyState message="No products found" />
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -111,7 +108,7 @@ function ProductCard({ product }: { product: Product }) {
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} className="w-full h-full object-cover rounded-lg" />
         ) : (
-          <Package className="h-12 w-12 text-gray-400" />
+          <span className="text-gray-400 text-sm">No image</span>
         )}
       </div>
       <div>

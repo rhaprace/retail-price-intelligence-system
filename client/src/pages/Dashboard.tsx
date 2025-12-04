@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { Package, DollarSign, AlertTriangle, ShoppingCart, Activity } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { pricesApi, productsApi, analyticsApi, comparisonsApi } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
@@ -50,23 +49,21 @@ export default function Dashboard() {
       <PageHeader title="Dashboard" description="Overview of your price intelligence data" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Products" value={productCount} icon={Package} color="primary" />
+        <StatCard title="Total Products" value={productCount} color="primary" />
         <StatCard
           title="Average Price"
           value={avgPrice}
-          icon={DollarSign}
           color="green"
           trend={{ direction: 'down', value: '3.2%' }}
         />
-        <StatCard title="Fake Discounts" value={fakeDiscountCount} icon={AlertTriangle} color="yellow" />
-        <StatCard title="Savings Found" value={savingsOpportunities} icon={ShoppingCart} color="green" />
+        <StatCard title="Fake Discounts" value={fakeDiscountCount} color="yellow" />
+        <StatCard title="Savings Found" value={savingsOpportunities} color="green" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-gray-900">Price Trends</h2>
-            <Activity className="h-5 w-5 text-gray-400" />
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">

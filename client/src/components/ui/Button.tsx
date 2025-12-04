@@ -1,42 +1,35 @@
-import type { LucideIcon } from 'lucide-react'
+import clsx from 'clsx'
+import type { ButtonProps } from './types'
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
-type ButtonSize = 'sm' | 'md' | 'lg'
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant
-  size?: ButtonSize
-  icon?: LucideIcon
-  children?: React.ReactNode
-}
-
-const variantClasses: Record<ButtonVariant, string> = {
-  primary: 'bg-primary-600 text-white hover:bg-primary-700',
-  secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+const variants = {
+  primary: 'bg-gray-900 text-white hover:bg-gray-800',
+  secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50',
   ghost: 'text-gray-600 hover:bg-gray-100',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
 }
 
-const sizeClasses: Record<ButtonSize, string> = {
+const sizes = {
   sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2',
-  lg: 'px-6 py-3 text-lg',
+  md: 'px-4 py-2 text-sm',
+  lg: 'px-6 py-3 text-base',
 }
 
-export default function Button({
-  variant = 'primary',
-  size = 'md',
-  icon: Icon,
-  children,
-  className = '',
-  ...props
+export default function Button({ 
+  variant = 'primary', 
+  size = 'md', 
+  className, 
+  children, 
+  ...props 
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
+      className={clsx(
+        'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50',
+        variants[variant],
+        sizes[size],
+        className
+      )}
       {...props}
     >
-      {Icon && <Icon className="h-5 w-5" />}
       {children}
     </button>
   )

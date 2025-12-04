@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query'
-import { AlertTriangle, TrendingUp, TrendingDown, Minus } from 'lucide-react'
 import { analyticsApi, type DiscountAnalysis } from '../lib/api'
 import { formatCurrency, formatPercent, formatDate } from '../lib/utils'
 import { PageHeader, Card, StatCard, LoadingSpinner, EmptyState, Badge } from '../components/ui'
@@ -24,9 +23,9 @@ export default function Analytics() {
       <PageHeader title="Analytics" description="Discount analysis and fake discount detection" />
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard title="Total Analyzed" value={totalCount} icon={TrendingUp} color="primary" />
-        <StatCard title="Fake Discounts" value={fakeCount} icon={AlertTriangle} color="red" />
-        <StatCard title="Legitimate Discounts" value={legitimateCount} icon={TrendingDown} color="green" />
+        <StatCard title="Total Analyzed" value={totalCount} color="primary" />
+        <StatCard title="Fake Discounts" value={fakeCount} color="red" />
+        <StatCard title="Legitimate Discounts" value={legitimateCount} color="green" />
       </div>
 
       {fakeCount > 0 && <FakeDiscountWarning count={fakeCount} />}
@@ -45,7 +44,6 @@ function FakeDiscountWarning({ count }: { count: number }) {
   return (
     <div className="bg-red-50 border border-red-200 rounded-xl p-6">
       <div className="flex items-start gap-4">
-        <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0" />
         <div>
           <h2 className="text-lg font-semibold text-red-800">{count} Fake Discounts Detected</h2>
           <p className="mt-1 text-sm text-red-700">
@@ -65,7 +63,7 @@ interface AnalysisTableProps {
 
 function AnalysisTable({ data, isLoading }: AnalysisTableProps) {
   if (isLoading) return <LoadingSpinner />
-  if (!data?.length) return <EmptyState icon={TrendingUp} message="No analysis data available" />
+  if (!data?.length) return <EmptyState message="No analysis data available" />
 
   return (
     <div className="overflow-x-auto">
@@ -126,10 +124,10 @@ function AnalysisRow({ analysis }: { analysis: DiscountAnalysis }) {
 function TrendIcon({ trend }: { trend: string }) {
   switch (trend) {
     case 'increasing':
-      return <TrendingUp className="h-4 w-4 text-red-500" />
+      return <span className="text-red-500 font-medium">↑</span>
     case 'decreasing':
-      return <TrendingDown className="h-4 w-4 text-green-500" />
+      return <span className="text-green-500 font-medium">↓</span>
     default:
-      return <Minus className="h-4 w-4 text-gray-400" />
+      return <span className="text-gray-400">—</span>
   }
 }

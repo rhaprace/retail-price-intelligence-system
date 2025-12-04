@@ -1,8 +1,4 @@
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: React.ReactNode
-  className?: string
-  padding?: 'none' | 'sm' | 'md' | 'lg'
-}
+import type { CardProps } from './types'
 
 const paddings = {
   none: '',
@@ -11,9 +7,17 @@ const paddings = {
   lg: 'p-8',
 }
 
-export default function Card({ children, className = '', padding = 'md', ...props }: CardProps) {
+export default function Card({ 
+  children, 
+  className = '', 
+  padding = 'md', 
+  ...props 
+}: CardProps) {
   return (
-    <div className={`bg-white rounded-xl border border-gray-200 ${paddings[padding]} ${className}`} {...props}>
+    <div 
+      className={`bg-white rounded-xl border border-gray-200 shadow-sm ${paddings[padding]} ${className}`} 
+      {...props}
+    >
       {children}
     </div>
   )

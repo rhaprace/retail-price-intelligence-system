@@ -1,22 +1,13 @@
 import { Link, Outlet, useLocation } from 'react-router-dom'
-import { 
-  LayoutDashboard, 
-  Package, 
-  BarChart3, 
-  Bell, 
-  TrendingUp,
-  Menu,
-  X
-} from 'lucide-react'
 import { useState } from 'react'
 import clsx from 'clsx'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Comparisons', href: '/comparisons', icon: BarChart3 },
-  { name: 'Alerts', href: '/alerts', icon: Bell },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
+  { name: 'Dashboard', href: '/' },
+  { name: 'Products', href: '/products' },
+  { name: 'Comparisons', href: '/comparisons' },
+  { name: 'Alerts', href: '/alerts' },
+  { name: 'Analytics', href: '/analytics' },
 ]
 
 export default function Layout() {
@@ -37,14 +28,13 @@ export default function Layout() {
       )}>
         <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
           <Link to="/" className="flex items-center gap-2">
-            <TrendingUp className="h-8 w-8 text-primary-600" />
             <span className="text-lg font-bold text-gray-900">PriceIntel</span>
           </Link>
           <button 
             className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
             onClick={() => setSidebarOpen(false)}
           >
-            <X className="h-5 w-5" />
+            Close
           </button>
         </div>
 
@@ -65,7 +55,6 @@ export default function Layout() {
                     : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                 )}
               >
-                <item.icon className="h-5 w-5" />
                 {item.name}
               </Link>
             )
@@ -87,7 +76,7 @@ export default function Layout() {
               className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
               onClick={() => setSidebarOpen(true)}
             >
-              <Menu className="h-6 w-6" />
+              Menu
             </button>
             
             <div className="flex-1 lg:flex-none" />
@@ -104,6 +93,7 @@ export default function Layout() {
             </div>
           </div>
         </header>
+
         <main className="p-4 sm:p-6 lg:p-8">
           <Outlet />
         </main>

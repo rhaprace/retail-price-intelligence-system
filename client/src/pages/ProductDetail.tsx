@@ -1,6 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, ExternalLink, TrendingUp, TrendingDown } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import { productsApi, type Product, type ProductSource, type ProductPrice } from '../lib/api'
 import { formatCurrency, formatDate, calculatePercentChange } from '../lib/utils'
@@ -66,7 +65,7 @@ export default function ProductDetail() {
 function BackLink() {
   return (
     <Link to="/products" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
-      <ArrowLeft className="h-4 w-4" />
+      <span>←</span>
       Back to products
     </Link>
   )
@@ -112,7 +111,7 @@ function ProductInfo({ product, currentPrice, priceChange }: ProductInfoProps) {
                 </div>
                 {priceChange !== null && (
                   <div className={`flex items-center gap-1 ${isDown ? 'text-green-600' : 'text-red-600'}`}>
-                    {isDown ? <TrendingDown className="h-5 w-5" /> : <TrendingUp className="h-5 w-5" />}
+                    <span>{isDown ? '↓' : '↑'}</span>
                     <span className="text-lg font-semibold">{priceChange.toFixed(1)}%</span>
                     <span className="text-sm">30d</span>
                   </div>
@@ -179,7 +178,7 @@ function SourceRow({ source }: { source: ProductSource }) {
           rel="noopener noreferrer"
           className="p-2 text-gray-400 hover:text-primary-600"
         >
-          <ExternalLink className="h-5 w-5" />
+          Visit
         </a>
       </div>
     </div>

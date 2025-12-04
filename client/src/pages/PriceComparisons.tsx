@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ArrowUpDown, TrendingDown, ExternalLink } from 'lucide-react'
 import { comparisonsApi, type PriceComparison } from '../lib/api'
 import { formatCurrency } from '../lib/utils'
 import { PageHeader, Card, LoadingSpinner, EmptyState, ErrorMessage, Badge } from '../components/ui'
@@ -31,7 +30,7 @@ interface ComparisonContentProps {
 function ComparisonContent({ comparisons, isLoading, error }: ComparisonContentProps) {
   if (isLoading) return <LoadingSpinner />
   if (error) return <ErrorMessage message="Error loading comparisons" />
-  if (!comparisons?.length) return <EmptyState icon={ArrowUpDown} message="No comparisons available" />
+  if (!comparisons?.length) return <EmptyState message="No comparisons available" />
 
   return (
     <div className="overflow-x-auto">
@@ -79,8 +78,7 @@ function ComparisonRow({ comparison }: { comparison: PriceComparison }) {
       <td className="px-6 py-4 whitespace-nowrap">
         {savings && savings > 0 ? (
           <span className="inline-flex items-center gap-1 text-green-600 font-medium">
-            <TrendingDown className="h-4 w-4" />
-            {formatCurrency(savings)}
+            ↓ {formatCurrency(savings)}
           </span>
         ) : (
           <span className="text-gray-400">—</span>
@@ -88,7 +86,7 @@ function ComparisonRow({ comparison }: { comparison: PriceComparison }) {
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <Link to={`/products/${comparison.product_id}`} className="text-primary-600 hover:text-primary-700">
-          <ExternalLink className="h-5 w-5" />
+          View
         </Link>
       </td>
     </tr>

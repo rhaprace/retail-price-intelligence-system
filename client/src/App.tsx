@@ -4,7 +4,7 @@ import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import ProductDetail from './pages/ProductDetail'
 import PriceComparisons from './pages/PriceComparisons'
-import Alerts from './pages/Alerts'
+import Alerts from './pages/alerts'
 import Analytics from './pages/Analytics'
 
 function App() {
