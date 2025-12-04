@@ -162,6 +162,9 @@ function SourcesList({ sources }: { sources: ProductSource[] | undefined }) {
 }
 
 function SourceRow({ source }: { source: ProductSource }) {
+  const hasValidUrl = source.source_product_url && 
+    (source.source_product_url.startsWith('http://') || source.source_product_url.startsWith('https://'))
+
   return (
     <div className="py-4 flex items-center justify-between">
       <div>
@@ -172,14 +175,18 @@ function SourceRow({ source }: { source: ProductSource }) {
         {source.latest_price && (
           <span className="text-lg font-semibold text-gray-900">{formatCurrency(source.latest_price)}</span>
         )}
-        <a
-          href={source.source_product_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="p-2 text-gray-400 hover:text-primary-600"
-        >
-          Visit
-        </a>
+        {hasValidUrl ? (
+          <a
+            href={source.source_product_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary-600 hover:text-primary-700 font-medium"
+          >
+            Visit
+          </a>
+        ) : (
+          <span className="text-gray-400">No link</span>
+        )}
       </div>
     </div>
   )

@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from datetime import datetime, timedelta, timezone
 
-from models.db_models import Product, ProductSource
+from models.db_models import Product, ProductSource, Source, Price
 from models.schemas import Product as ProductSchema, ProductCreate
 from models.utils import find_or_create_product, get_price_history
 from ..dependencies import get_db
@@ -95,22 +95,35 @@ def create_product(product: ProductCreate, db: Session = Depends(get_db)):
 def get_product_sources(product_id: UUID, db: Session = Depends(get_db)):
     get_product_or_404(product_id, db)
     
-    sources = db.query(ProductSource).filter(
+    sources = db.query(ProductSource, Source).join(
+        Source, ProductSource.source_id == Source.id
+    ).filter(
         ProductSource.product_id == product_id,
         ProductSource.is_active == True
     ).all()
     
-    return [
-        {
-            "id": s.id,
-            "source_id": s.source_id,
-            "source_product_id": s.source_product_id,
-            "source_product_url": s.source_product_url,
-            "source_product_name": s.source_product_name,
-            "last_seen_at": s.last_seen_at
-        }
-        for s in sources
-    ]
+    result = []
+    for ps, source in sources:
+        # Get latest price for this product source
+        latest_price_record = db.query(Price).filter(
+            Price.product_source_id == ps.id
+        ).order_by(Price.scraped_at.desc()).first()
+        
+        result.append({
+            "id": ps.id,
+            "product_id": str(ps.product_id),
+            "source_id": ps.source_id,
+            "source_name": source.name,
+            "source_product_id": ps.source_product_id,
+            "source_product_url": ps.source_product_url,
+            "source_product_name": ps.source_product_name,
+            "latest_price": latest_price_record.price if latest_price_record else None,
+            "is_active": ps.is_active,
+            "created_at": ps.created_at,
+            "updated_at": ps.updated_at
+        })
+    
+    return result
 
 
 @router.get("/{product_id}/prices")
