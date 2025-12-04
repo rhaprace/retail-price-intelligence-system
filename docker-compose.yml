@@ -11,7 +11,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-retail_price_intelligence}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./server/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     ports:
       - "5432:5432"
     healthcheck:
@@ -39,7 +39,7 @@ services:
   # API Server
   api:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
     container_name: rpi_api
     environment:
@@ -54,7 +54,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./logs:/app/logs
+      - ./server/logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
@@ -70,7 +70,7 @@ services:
   # Scheduler for background tasks
   scheduler:
     build:
-      context: .
+      context: ./server
       dockerfile: Dockerfile
     container_name: rpi_scheduler
     command: ["python", "-m", "pipeline.scheduler"]
@@ -83,7 +83,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
-      - ./logs:/app/logs
+      - ./server/logs:/app/logs
     depends_on:
       db:
         condition: service_healthy
