@@ -69,3 +69,4 @@ dmypy.json
 *.seed
 *.pid.lock
 
+*node_modules

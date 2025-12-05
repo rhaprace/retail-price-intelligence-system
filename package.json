@@ -1,0 +1,19 @@
+{
+  "name": "retail-price-intelligence-system",
+  "version": "1.0.0",
+  "description": "Retail Price Intelligence System - Track and compare prices across retailers",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && python -m uvicorn api.main:app --reload --port 8000",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "concurrently \"npm run server\" \"npm run client:preview\"",
+    "client:preview": "cd client && npm run preview"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
