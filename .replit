@@ -1,0 +1,12 @@
+run = "cd server && uvicorn api.main:app --host 0.0.0.0 --port 8000"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "cd server && uvicorn api.main:app --host 0.0.0.0 --port 8000"]
+deploymentTarget = "cloudrun"
+
+[[ports]]
+localPort = 8000
+externalPort = 80
