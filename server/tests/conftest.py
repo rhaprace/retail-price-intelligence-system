@@ -1,119 +1,143 @@
 import pytest
-import os
-from decimal import Decimal
 from datetime import datetime, timezone
+from decimal import Decimal
 from uuid import uuid4
-
-os.environ['DB_NAME'] = 'retail_price_intelligence_test'
-
-from sqlalchemy import create_engine, event
+from unittest.mock import Mock, patch
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
-from models.base import Base
-from models.db_models import Source, Product, ProductSource, Price, PriceAlert
+from api.main import app
+from models.db_models import Base
 
 
-@pytest.fixture(scope="function")
-def engine():
-    test_engine = create_engine(
+@pytest.fixture(scope="session")
+def test_db_engine():
+    """Create a test database engine"""
+    engine = create_engine(
         "sqlite:///:memory:",
-        echo=False
+        poolclass=StaticPool,
+        connect_args={"check_same_thread": False},
     )
-    Base.metadata.create_all(test_engine)
-    yield test_engine
-    test_engine.dispose()
+    Base.metadata.create_all(bind=engine)
+    return engine
 
 
 @pytest.fixture(scope="function")
-def db_session(engine):
-    Session = sessionmaker(bind=engine)
-    session = Session()
+def db_session(test_db_engine):
+    """Create a test database session"""
+    connection = test_db_engine.connect()
+    transaction = connection.begin()
     
-    yield session
+    SessionLocal = sessionmaker(bind=connection)
+    session = SessionLocal()
     
-    session.rollback()
-    session.close()
+    try:
+        yield session
+    finally:
+        session.close()
+        transaction.rollback()
+        connection.close()
 
 
 @pytest.fixture
-def sample_source(db_session):
-    source = Source(
-        name=f"Test Amazon {uuid4().hex[:8]}",
-        base_url="https://www.amazon.com",
-        country_code="US",
-        currency_code="USD",
-        rate_limit_per_minute=60
-    )
-    db_session.add(source)
-    db_session.commit()
-    db_session.refresh(source)
-    return source
+def client():
+    """Create a test client for the API"""
+    from fastapi.testclient import TestClient
+    return TestClient(app)
 
 
 @pytest.fixture
-def sample_product(db_session):
-    product = Product(
-        id=uuid4(),
-        name="Test Product",
-        description="A test product for unit testing",
-        category="Electronics",
-        brand="TestBrand",
-        sku="TEST-SKU-001"
-    )
-    db_session.add(product)
-    db_session.commit()
-    db_session.refresh(product)
-    return product
+def mock_http_client():
+    """Mock HTTP client for web scraping"""
+    with patch('scrapers.base.requests') as mock_requests:
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.content = b''
+        mock_requests.get.return_value = mock_response
+        yield mock_requests
 
 
 @pytest.fixture
-def sample_product_source(db_session, sample_product, sample_source):
-    product_source = ProductSource(
-        product_id=sample_product.id,
-        source_id=sample_source.id,
-        source_product_id="B001234567",
-        source_product_url="https://www.amazon.com/dp/B001234567",
-        source_product_name="Test Product on Amazon"
-    )
-    db_session.add(product_source)
-    db_session.commit()
-    db_session.refresh(product_source)
-    return product_source
+def sample_product_data():
+    """Sample product data for testing"""
+    return {
+        "id": uuid4(),
+        "name": "Test Product",
+        "description": "A test product",
+        "category": "Electronics",
+        "brand": "Test Brand",
+        "sku": "TEST123",
+        "upc": "123456789012",
+        "ean": "1234567890123",
+        "image_url": "https://example.com/image.jpg",
+        "normalized_name": "test product"
+    }
 
 
 @pytest.fixture
-def sample_prices(db_session, sample_product_source):
-    prices = []
-    base_price = Decimal("99.99")
-    
-    for i in range(10):
-        price = Price(
-            product_source_id=sample_product_source.id,
-            price=base_price - Decimal(str(i * 2)),
-            currency_code="USD",
-            original_price=Decimal("129.99"),
-            is_in_stock=True,
-            scraped_at=datetime.now(timezone.utc)
-        )
-        prices.append(price)
-        db_session.add(price)
-    
-    db_session.commit()
-    for p in prices:
-        db_session.refresh(p)
-    
-    return prices
+def sample_source_data():
+    """Sample source data for testing"""
+    return {
+        "id": 1,
+        "name": "Test Store",
+        "base_url": "https://teststore.com",
+        "country_code": "US",
+        "currency_code": "USD",
+        "is_active": True,
+        "rate_limit_per_minute": 60
+    }
 
 
 @pytest.fixture
-def sample_alert(db_session, sample_product):
-    alert = PriceAlert(
-        product_id=sample_product.id,
-        user_email="test@example.com",
-        target_price=Decimal("79.99"),
-        is_active=True
-    )
-    db_session.add(alert)
-    db_session.commit()
-    db_session.refresh(alert)
-    return alert
+def sample_product_source_data(sample_product_data, sample_source_data):
+    """Sample product source data for testing"""
+    return {
+        "id": 1,
+        "product_id": sample_product_data["id"],
+        "source_id": sample_source_data["id"],
+        "source_product_id": "12345",
+        "source_product_url": "https://teststore.com/product/12345",
+        "source_product_name": "Test Product from Store",
+        "is_active": True
+    }
+
+
+@pytest.fixture
+def sample_price_data():
+    """Sample price data for testing"""
+    return {
+        "id": 1,
+        "price": Decimal('99.99'),
+        "currency_code": "USD",
+        "original_price": Decimal('119.99'),
+        "discount_percentage": Decimal('16.67'),
+        "is_in_stock": True,
+        "stock_quantity": 5,
+        "shipping_cost": Decimal('5.99'),
+        "scraped_at": datetime.now(timezone.utc),
+        "raw_data": {"test": "data"}
+    }
+
+
+@pytest.fixture
+def mock_rate_limiter():
+    """Mock rate limiter for testing"""
+    with patch('scrapers.base.RateLimiter') as mock_rate_limiter_class:
+        mock_rate_limiter_instance = Mock()
+        mock_rate_limiter_instance.wait_if_needed.return_value = None
+        mock_rate_limiter_class.return_value = mock_rate_limiter_instance
+        yield mock_rate_limiter_instance
+
+
+@pytest.fixture
+def mock_database_session():
+    """Mock database session for testing"""
+    session = Mock()
+    session.query.return_value = session
+    session.filter.return_value = session
+    session.first.return_value = None
+    session.all.return_value = []
+    session.offset.return_value = session
+    session.limit.return_value = session
+    return session
